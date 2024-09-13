@@ -9,6 +9,13 @@
 <body>
     <div class="container mt-5">
         <h1 class="text-center mb-4">Your Tasks</h1>
+        {% if messages %}
+        <div class="alert alert-info" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
 
         {% if tasks %}
             <table class="table table-bordered">
@@ -31,6 +38,9 @@
                             <td>{{ task.end_date }}</td>
                             <td>{{ task.priority }}</td>
                             <td>{{ task.status }}</td>
+                            <td>
+                                <a href="{% url 'update_task' task.id %}" class="btn btn-warning">Edit</a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

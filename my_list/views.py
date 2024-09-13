@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import login,logout,authenticate
@@ -93,6 +93,53 @@ def create_task(request):
 def view_tasks(request):
     tasks = models.Task.objects.filter(user=request.user)
     return render(request, 'view_tasks.html', {'tasks': tasks})
+
+
+@login_required(login_url='/login/')
+def update_task(request, task_id):
+    task = get_object_or_404(models.Task, id=task_id, user=request.user)
+
+    if request.method == 'POST':
+        task_name = request.POST.get('name')
+        description = request.POST.get('description')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        priority = request.POST.get('priority')
+        status = request.POST.get('status')
+
+        # Convert string dates to datetime objects for comparison
+        try:
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            messages.error(request, 'Invalid date format.')
+            return redirect('update_task', task_id=task_id)
+
+        today = timezone.now().date()
+
+        if start_date_obj < today:
+            messages.error(request, 'Start date cannot be in the past.')
+            return redirect('update_task', task_id=task_id)
+
+        if end_date_obj < start_date_obj:
+            messages.error(request, 'End date must be equal to or greater than the start date.')
+            return redirect('update_task', task_id=task_id)
+
+        # Update the task with the new data
+        task.task_name = task_name
+        task.description = description
+        task.start_date = start_date_obj
+        task.end_date = end_date_obj
+        task.priority = priority
+        task.status = status
+        task.save()
+
+        messages.success(request, 'Task updated successfully.')
+        return redirect('view_tasks')
+
+    return render(request, 'update_task.html', {'task': task})
+    
+
 
 def Logout(request):
     logout(request)
