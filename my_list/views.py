@@ -47,6 +47,7 @@ def Dashboard(request):
     return render(request, 'dashboard.html')
 
 
+@login_required(login_url='/login/')
 def create_task(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -88,6 +89,7 @@ def create_task(request):
     return render(request, 'create_task.html')
 
 
+@login_required(login_url='/login/')
 def view_tasks(request):
     tasks = models.Task.objects.filter(user=request.user)
     return render(request, 'view_tasks.html', {'tasks': tasks})
