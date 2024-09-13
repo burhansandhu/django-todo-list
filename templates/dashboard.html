@@ -7,7 +7,17 @@
     <title>Dashboard</title>
 </head>
 <body>
-    welcome to Dashboard
+    {% if messages %}
+    <div class="alert alert-info" role="alert">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+    <br>
+    welcome to Dashboard<br>
+    Create New <a href="{% url 'create_task' %}">Task</a><br>
+    <a href="{% url 'view_tasks' %}">View Tasks</a><br>
     <a href="{% url 'logout' %}">Logout</a>
 </body>
 </html>
