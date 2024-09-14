@@ -29,6 +29,8 @@ def signup(request):
         
     return render(request, 'signup.html')
 
+
+
 def Login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -42,6 +44,8 @@ def Login(request):
             return redirect('login')
         
     return render(request,'login.html')
+
+
 
 @login_required(login_url='/login/')
 def Dashboard(request):
@@ -72,6 +76,7 @@ def Dashboard(request):
         tasks = tasks.order_by(sort_options_map[sort_option])
 
     return render(request, 'dashboard.html', {'tasks': tasks, 'sort_option': sort_option})
+
 
 
 @login_required(login_url='/login/')
@@ -111,9 +116,11 @@ def create_task(request):
             status = status
         )
         messages.success(request,"your task has been created successfully")
-        return redirect('view_tasks')
+        return redirect('dashboard')
 
     return render(request, 'create_task.html')
+
+
 
 
 @login_required(login_url='/login/')
@@ -136,11 +143,6 @@ def update_task(request, task_id):
             messages.error(request, 'Invalid date format.')
             return redirect('update_task', task_id=task_id)
 
-        today = timezone.now().date()
-
-        if start_date_obj < today:
-            messages.error(request, 'Start date cannot be in the past.')
-            return redirect('update_task', task_id=task_id)
 
         if end_date_obj < start_date_obj:
             messages.error(request, 'End date must be equal to or greater than the start date.')
@@ -161,7 +163,7 @@ def update_task(request, task_id):
     return render(request, 'update_task.html', {'task': task})
     
 
-
+@login_required(login_url='/login/')
 def Logout(request):
     logout(request)
     return redirect('login')
