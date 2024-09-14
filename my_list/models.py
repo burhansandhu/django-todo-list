@@ -21,7 +21,7 @@ class Task(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Medium')
-    status = models.CharField(max_length=20, default='Pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self):
         return f"{self.user.username}'s task {self.task_name}"

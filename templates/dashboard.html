@@ -5,19 +5,66 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    {% if messages %}
-    <div class="alert alert-info" role="alert">
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">welcome to Dashboard</h1>
+        <h2 class="text-center mb-4">Your Tasks</h2>
+        {% if messages %}
+        <div class="alert alert-info" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+        <br>
+        <br>
+        <form method="GET" action="">
+            <label for="sort_by">Sort by:</label>
+            <select name="sort_by" id="sort_by" onchange="this.form.submit()">
+                <option value="start_date" {% if sort_option == 'start_date' %}selected{% endif %}>Start Date</option>
+                <option value="end_date" {% if sort_option == 'end_date' %}selected{% endif %}>End Date</option>
+                <option value="priority" {% if sort_option == 'priority' %}selected{% endif %}>Priority</option>
+                <option value="status" {% if sort_option == 'status' %}selected{% endif %}>Status</option>
+            </select>
+        </form>
+        
+        {% if tasks %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Task Name</th>
+                        <th>Description</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                        <tr>
+                            <td>{{ task.task_name }}</td>
+                            <td>{{ task.description }}</td>
+                            <td>{{ task.start_date }}</td>
+                            <td>{{ task.end_date }}</td>
+                            <td>{{ task.get_priority_display }}</td>
+                            <td>{{ task.get_status_display }}</td>
+                            <td>
+                                <a href="{% url 'update_task' task.id %}" class="btn btn-warning">Edit</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-center">You have no tasks yet.</p>
+        {% endif %}
+
+    <a href="{% url 'create_task' %}" class="btn btn-primary mt-4">Create New Task</a><br>
+    <a href="{% url 'logout' %}" class="btn btn-primary mt-4">Logout</a>
     </div>
-    {% endif %}
-    <br>
-    welcome to Dashboard<br>
-    Create New <a href="{% url 'create_task' %}">Task</a><br>
-    <a href="{% url 'view_tasks' %}">View Tasks</a><br>
-    <a href="{% url 'logout' %}">Logout</a>
 </body>
 </html>

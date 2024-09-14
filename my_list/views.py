@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from . import models
 from django.utils  import timezone
 from datetime import datetime
+from django.db.models import Case, When, Value, IntegerField
 # Create your views here.
 def signup(request):
     if request.method == 'POST':
@@ -44,7 +45,33 @@ def Login(request):
 
 @login_required(login_url='/login/')
 def Dashboard(request):
-    return render(request, 'dashboard.html')
+    sort_option = request.GET.get('sort_by', 'start_date')
+
+    # Define sorting options
+    sort_options_map = {
+        'start_date': 'start_date',
+        'end_date': 'end_date',
+        'priority': 'custom_priority',  # Custom sorting for priority
+        'status': 'status',
+    }
+
+    # Get user's tasks
+    tasks = models.Task.objects.filter(user=request.user)
+
+    # Custom sorting for priority
+    if sort_option == 'priority':
+        tasks = tasks.annotate(
+            custom_priority=Case(
+                When(priority='High', then=Value(1)),  # 'High' from model
+                When(priority='Medium', then=Value(2)),  # 'Medium' from model
+                When(priority='Low', then=Value(3)),
+                output_field=IntegerField(),
+            )
+        ).order_by('custom_priority')
+    elif sort_option in sort_options_map:
+        tasks = tasks.order_by(sort_options_map[sort_option])
+
+    return render(request, 'dashboard.html', {'tasks': tasks, 'sort_option': sort_option})
 
 
 @login_required(login_url='/login/')
@@ -84,15 +111,9 @@ def create_task(request):
             status = status
         )
         messages.success(request,"your task has been created successfully")
-        return redirect('dashboard')
+        return redirect('view_tasks')
 
     return render(request, 'create_task.html')
-
-
-@login_required(login_url='/login/')
-def view_tasks(request):
-    tasks = models.Task.objects.filter(user=request.user)
-    return render(request, 'view_tasks.html', {'tasks': tasks})
 
 
 @login_required(login_url='/login/')
@@ -135,7 +156,7 @@ def update_task(request, task_id):
         task.save()
 
         messages.success(request, 'Task updated successfully.')
-        return redirect('view_tasks')
+        return redirect('dashboard')
 
     return render(request, 'update_task.html', {'task': task})
     

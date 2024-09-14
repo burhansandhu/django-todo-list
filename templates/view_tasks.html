@@ -17,6 +17,16 @@
         </div>
         {% endif %}
 
+        <form method="GET" action="">
+            <label for="sort_by">Sort by:</label>
+            <select name="sort_by" id="sort_by" onchange="this.form.submit()">
+                <option value="start_date" {% if sort_option == 'start_date' %}selected{% endif %}>Start Date</option>
+                <option value="end_date" {% if sort_option == 'end_date' %}selected{% endif %}>End Date</option>
+                <option value="priority" {% if sort_option == 'priority' %}selected{% endif %}>Priority</option>
+                <option value="status" {% if sort_option == 'status' %}selected{% endif %}>Status</option>
+            </select>
+        </form>
+        
         {% if tasks %}
             <table class="table table-bordered">
                 <thead>
@@ -27,6 +37,7 @@
                         <th>End Date</th>
                         <th>Priority</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,8 +47,8 @@
                             <td>{{ task.description }}</td>
                             <td>{{ task.start_date }}</td>
                             <td>{{ task.end_date }}</td>
-                            <td>{{ task.priority }}</td>
-                            <td>{{ task.status }}</td>
+                            <td>{{ task.get_priority_display }}</td>
+                            <td>{{ task.get_status_display }}</td>
                             <td>
                                 <a href="{% url 'update_task' task.id %}" class="btn btn-warning">Edit</a>
                             </td>
